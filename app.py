@@ -265,7 +265,11 @@ def runtime():
   if 'all' in filters:
     return resp_ok({'runtime_hist': serialize_json(trainer.run_meta)})
   else:
-    return resp_ok({'runtime_hist': serialize_json([run for run in trainer.run_meta if run['status'] in filters])})
+    filtered: List[RunMeta] = []
+    for run in trainer.run_meta:
+      if isinstance(run['status'], str)    and run['status']       in filters: filtered.append(run)
+      if isinstance(run['status'], Status) and run['status'].value in filters: filtered.append(run)
+    return resp_ok({'runtime_hist': serialize_json(filtered)})
 
 
 if __name__ == '__main__':
